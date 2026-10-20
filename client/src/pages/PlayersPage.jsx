@@ -1,0 +1,109 @@
+import { Link, useSearchParams } from 'react-router-dom';
+import api from '../services/api';
+import useAsync from '../hooks/useAsync';
+import { useAuth } from '../context/AuthContext';
+import { PageHeader, Loader, ErrorAlert, EmptyState, Pagination } from '../components/common';
+import { PlayerCard } from '../components/Cards';
+import { positionName, percent } from '../pipes';
+import { POSITIONS } from '../utils/validators';
+
+/**
+ * Printout of the list of players. All filters live in the URL (?q=&position=&club=&sort=&page=)
+ * so browser back / forward restores the previous view.
+ */
+export default function PlayersPage() {
+  const { isLoggedIn } = useAuth();
+  const [params, setParams] = useSearchParams();
+  const query = Object.fromEntries(params.entries());
+  const page = Number(query.page) || 1;
+
+  const clubs = useAsync(() => api.getClubs(), []);
+  const { data, loading, error, reload } = useAsync(() => api.getPlayers({ limit: 12, sort: 'name', ...query }), [params.toString()]);
+
+  const update = (key, value) => {
+    const next = new URLSearchParams(params);
+    value ? next.set(key, value) : next.delete(key);
+    if (key !== 'page') next.delete('page');
+    setParams(next);
+  };
+  const filtered = ['q', 'position', 'club'].some((k) => query[k]);
+
+  return (
+    <>
+      <PageHeader title="Играчи" icon="bi-people" subtitle={data ? (filtered ? `Пронајдени ${data.total} играчи` : `${data.total} играчи во базата`) : ' '}>
+        {isLoggedIn && (
+          <>
+            <Link to="/external" className="btn btn-outline-primary"><i className="bi bi-cloud-download me-1" />Увези од TheSportsDB</Link>
+            <Link to="/players/new" className="btn btn-primary"><i className="bi bi-plus-lg me-1" />Нов играч</Link>
+          </>
+        )}
+      </PageHeader>
+
+      <div className="row g-2 mb-3">
+        <div className="col-md-4">
+          <input key={query.q || ''} className="form-control" placeholder="Филтрирај по име, клуб, град или националност..." defaultValue={query.q || ''}
+            onKeyDown={(e) => e.key === 'Enter' && update('q', e.target.value.trim())}
+            onBlur={(e) => e.target.value.trim() !== (query.q || '') && update('q', e.target.value.trim())} aria-label="Филтер" />
+        </div>
+        <div className="col-6 col-md-3">
+          <select className="form-select" value={query.position || ''} onChange={(e) => update('position', e.target.value)} aria-label="Позиција">
+            <option value="">Сите позиции</option>
+            {POSITIONS.map((p) => <option key={p} value={p}>{positionName(p, true)}</option>)}
+          </select>
+        </div>
+        <div className="col-6 col-md-3">
+          <select className="form-select" value={query.club || ''} onChange={(e) => update('club', e.target.value)} aria-label="Клуб">
+            <option value="">Сите клубови</option>
+            {(clubs.data || []).map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
+          </select>
+        </div>
+        <div className="col-md-2">
+          <select className="form-select" value={query.sort || 'name'} onChange={(e) => update('sort', e.target.value)} aria-label="Подредување">
+            <option value="name">Подреди: име</option>
+            <option value="goals">Подреди: голови</option>
+            <option value="age">Подреди: најмлади</option>
+            <option value="height">Подреди: највисоки</option>
+            <option value="newest">Подреди: најнови</option>
+          </select>
+        </div>
+      </div>
+
+      <ErrorAlert error={error} onRetry={reload} />
+      {loading ? <Loader /> : data && data.items.length === 0 ? (
+        <EmptyState icon="bi-person-x" text="Нема играчи што одговараат на филтрите." />
+      ) : data && (
+        <>
+          {/* desktop / tablet: table */}
+          <div className="table-responsive d-none d-md-block">
+            <table className="table table-hover align-middle bg-white shadow-sm rounded">
+              <thead className="table-light">
+                <tr><th>#</th><th>Играч</th><th>Позиција</th><th>Клуб</th><th>Нац.</th><th>Год.</th><th title="натпревари">Нат.</th><th>Голови</th><th title="успешност на шут">Шут %</th><th title="одбрани (голмани)">Одбр.</th></tr>
+              </thead>
+              <tbody>
+                {data.items.map((p) => (
+                  <tr key={p._id}>
+                    <td>{p.jerseyNumber !== '' ? <span className="jersey">{p.jerseyNumber}</span> : '–'}</td>
+                    <td><img src={p.photo} alt="" className="rounded-circle me-2 table-thumb" loading="lazy" /><Link to={`/players/${p._id}`}>{p.fullName}</Link></td>
+                    <td><span className="badge text-bg-dark me-1">{p.position}</span><small className="text-muted">{positionName(p.position)}</small></td>
+                    <td>{p.club ? <Link to={`/clubs/${p.club._id}`}>{p.club.name}</Link> : <span className="text-muted">без клуб</span>}</td>
+                    <td>{p.nationality}</td>
+                    <td>{p.age}</td>
+                    <td>{p.appearances}</td>
+                    <td className="fw-bold">{p.goals}</td>
+                    <td>{percent(p.goals, p.shots)}</td>
+                    <td>{p.isGoalkeeper ? p.saves : '–'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {/* mobile: cards */}
+          <div className="row g-2 d-md-none">
+            {data.items.map((p) => <div className="col-12" key={p._id}><PlayerCard player={p} /></div>)}
+          </div>
+          <Pagination page={page} pages={data.pages} onChange={(n) => update('page', String(n))} />
+        </>
+      )}
+    </>
+  );
+}

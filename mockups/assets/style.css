@@ -1,0 +1,21 @@
+body{background:#f3f5f9}
+.hh-navbar{background:linear-gradient(90deg,#0b2545,#13315c)}
+.hh-footer{background:#0b2545;color:#c9d6ea}
+.hh-footer a{color:#fff}
+.hero{background:linear-gradient(120deg,#0b2545 0%,#13315c 55%,#1d4e89 100%)}
+.text-orange{color:#f77f00!important}
+.btn-orange{background:#f77f00;border-color:#f77f00;color:#fff}
+.btn-orange:hover{background:#e06f00;color:#fff}
+.stat-card{border:0;border-top:4px solid #f77f00;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.avatar{width:36px;height:36px;border-radius:50%;background:#13315c;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0}
+.club-logo{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:#13315c;color:#fff;font-weight:700;flex-shrink:0}
+.jersey{display:inline-flex;align-items:center;justify-content:center;min-width:2rem;height:2rem;border-radius:.4rem;background:#f77f00;color:#fff;font-weight:700}
+.score{font-size:2.6rem;font-weight:800;letter-spacing:.05em}
+.score-sm{font-weight:700;font-size:1.15rem;white-space:nowrap}
+.form-dot{display:inline-block;width:1.4rem;height:1.4rem;line-height:1.4rem;border-radius:50%;color:#fff;font-size:.7rem;text-align:center;margin-right:2px}
+.match-card:hover,.player-card:hover{transform:translateY(-2px);transition:.15s;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.zoomable{cursor:zoom-in}
+.timeline li{border-left:3px solid #f77f00;padding:.5rem 0 .5rem 1rem;margin-left:.5rem}
+.modal-backdrop-demo{background:rgba(0,0,0,.45);padding:3rem 1rem;border-radius:1rem}
+.mockup-desc li{margin-bottom:.25rem}
+.bar{height:22px;background:#f77f00;border-radius:4px}
