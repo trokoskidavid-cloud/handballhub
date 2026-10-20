@@ -1,99 +1,164 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Navbar, Nav, Container, NavDropdown } from 'react-bootstrap';
+import { Offcanvas } from 'react-bootstrap';
+import api from '../services/api';
+import useAsync from '../hooks/useAsync';
 import { useAuth } from '../context/AuthContext';
 import { initials } from '../pipes';
+import { ClubLogo } from './common';
 
-/** Reusable navigation bar – items depend on the role (guest / user / admin). */
-export function AppNavbar() {
+const Ball = () => <img src="/favicon.svg" alt="" className="brand-ball" />;
+
+/** Navigation groups – items depend on the role (guest / user / admin). */
+function useNavGroups() {
+  const { isLoggedIn, isAdmin } = useAuth();
+  return [
+    ['Matchday', [
+      ['/', 'Почетна', 'bi-lightning-charge-fill', true],
+      ['/matches', 'Натпревари', 'bi-calendar2-week'],
+      ['/standings', 'Табела', 'bi-bar-chart-steps'],
+    ]],
+    ['Игра со прогнози', [
+      ['/leaderboard', 'Ранг-листа', 'bi-trophy'],
+      ...(isLoggedIn ? [['/my-predictions', 'Мои прогнози', 'bi-bullseye']] : []),
+    ]],
+    ['База', [
+      ['/players', 'Играчи', 'bi-person-badge'],
+      ['/clubs', 'Клубови', 'bi-shield-shaded'],
+      ['/search', 'Пребарување', 'bi-search'],
+      ['/dashboard', 'Статистика', 'bi-graph-up'],
+      ...(isLoggedIn ? [['/external', 'TheSportsDB увоз', 'bi-cloud-arrow-down']] : []),
+    ]],
+    ...(isLoggedIn ? [['Профил', [
+      ['/history', 'Историја', 'bi-clock-history'],
+      ...(isAdmin ? [['/admin/users', 'Корисници', 'bi-people'], ['/db', 'База (/db)', 'bi-database']] : []),
+    ]]] : []),
+  ];
+}
+
+function SideNav({ onNavigate }) {
+  const groups = useNavGroups();
+  return (
+    <nav className="side-nav" aria-label="Главно мени">
+      {groups.map(([title, links]) => (
+        <div key={title}>
+          <div className="side-group">{title}</div>
+          {links.map(([to, label, icon, end]) => (
+            <NavLink key={to} to={to} end={end} className="side-link" onClick={onNavigate}>
+              <i className={`bi ${icon}`} />{label}
+            </NavLink>
+          ))}
+        </div>
+      ))}
+    </nav>
+  );
+}
+
+function UserBox() {
   const { user, isLoggedIn, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [expanded, setExpanded] = useState(false);
-  // close the mobile menu whenever the page changes (also for links outside the navbar)
-  useEffect(() => setExpanded(false), [location.pathname, location.search]);
-  const links = [
-    ['/matches', 'Натпревари', 'bi-calendar-event'],
-    ['/standings', 'Табела', 'bi-list-ol'],
-    ['/leaderboard', 'Прогнози', 'bi-trophy'],
-    ['/players', 'Играчи', 'bi-people'],
-    ['/clubs', 'Клубови', 'bi-shield'],
-    ['/search', 'Пребарување', 'bi-search'],
-    ['/dashboard', 'Статистика', 'bi-bar-chart'],
-  ];
+  if (!isLoggedIn) {
+    return (
+      <div className="side-user d-grid gap-2">
+        <Link to="/register" className="btn btn-primary btn-sm">Регистрирај се</Link>
+        <Link to="/login" className="btn btn-ghost btn-sm">Најава</Link>
+      </div>
+    );
+  }
   return (
-    <Navbar expand="lg" variant="dark" className="hh-navbar" collapseOnSelect expanded={expanded} onToggle={setExpanded}>
-      <Container>
-        <Navbar.Brand as={Link} to="/" className="fw-bold">
-          <i className="bi bi-dribbble me-1 text-orange" /> HandballHub
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="main-nav" />
-        <Navbar.Collapse id="main-nav">
-          <Nav className="me-auto">
-            {links.map(([to, label, icon]) => (
-              <Nav.Link as={NavLink} to={to} key={to} eventKey={to}>
-                <i className={`bi ${icon} me-1 d-lg-none d-xl-inline`} />{label}
-              </Nav.Link>
-            ))}
-          </Nav>
-          <Nav>
-            {isLoggedIn ? (
-              <NavDropdown
-                align="end"
-                title={<span><span className="avatar avatar-sm me-1">{initials(user.username)}</span>{user.username}</span>}
-              >
-                <NavDropdown.Item as={Link} to="/my-predictions"><i className="bi bi-graph-up-arrow me-2" />Мои прогнози</NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/history"><i className="bi bi-clock-history me-2" />Историја</NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/external"><i className="bi bi-cloud-download me-2" />Увоз од TheSportsDB</NavDropdown.Item>
-                {isAdmin && (
-                  <>
-                    <NavDropdown.Divider />
-                    <NavDropdown.Header>Администрација</NavDropdown.Header>
-                    <NavDropdown.Item as={Link} to="/admin/users"><i className="bi bi-person-gear me-2" />Корисници</NavDropdown.Item>
-                    <NavDropdown.Item as={Link} to="/db"><i className="bi bi-database me-2" />База (/db)</NavDropdown.Item>
-                  </>
-                )}
-                <NavDropdown.Divider />
-                <NavDropdown.Item onClick={() => { logout(); navigate('/'); }}>
-                  <i className="bi bi-box-arrow-right me-2" />Одјава
-                </NavDropdown.Item>
-              </NavDropdown>
-            ) : (
-              <>
-                <Nav.Link as={NavLink} to="/login"><i className="bi bi-box-arrow-in-right me-1" />Најава</Nav.Link>
-                <Link to="/register" className="btn btn-orange btn-sm fw-semibold ms-lg-2 px-3 align-self-lg-center align-self-start my-1">Регистрација</Link>
-              </>
-            )}
-          </Nav>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
+    <div className="side-user d-flex align-items-center gap-2">
+      <span className="avatar">{initials(user.username)}</span>
+      <div className="min-w-0 flex-grow-1">
+        <div className="fw-semibold text-truncate">{user.username}</div>
+        <small className={isAdmin ? 'text-coral' : 'text-muted'}>{isAdmin ? 'администратор' : 'навивач'}</small>
+      </div>
+      <button type="button" className="btn btn-ghost btn-sm" title="Одјава" aria-label="Одјава" onClick={() => { logout(); navigate('/'); }}>
+        <i className="bi bi-box-arrow-right" />
+      </button>
+    </div>
+  );
+}
+
+/** Scrolling strip with the latest results (like a TV ticker). */
+function Ticker() {
+  const { data } = useAsync(() => api.getMatches({ status: 'finished', limit: 10 }).catch(() => null), []);
+  const items = data?.items || [];
+  if (!items.length) return null;
+  const row = items.map((m) => (
+    <Link key={m._id} to={`/matches/${m._id}`} className="ticker-item">
+      <ClubLogo club={m.homeClub} size={18} /> {m.homeClub?.name} <strong>{m.score}</strong> {m.awayClub?.name} <ClubLogo club={m.awayClub} size={18} />
+    </Link>
+  ));
+  return (
+    <div className="ticker d-print-none" aria-label="Последни резултати">
+      <div className="ticker-label"><span className="live-dot me-2" style={{ background: '#fff' }} />РЕЗУЛТАТИ</div>
+      {/* the row is rendered twice so the animation loops without a gap */}
+      <div className="ticker-track">{row}<span aria-hidden="true">{row}</span></div>
+    </div>
   );
 }
 
 export function AppFooter() {
   return (
-    <footer className="hh-footer py-3 mt-auto">
-      <div className="container d-flex flex-wrap justify-content-between gap-2 small">
-        <span>&copy; {new Date().getFullYear()} HandballHub · Веб програмирање</span>
-        <span>
-          <a href="/api/docs/" target="_blank" rel="noreferrer">REST API документација</a> ·{' '}
-          Податоци: <a href="https://www.thesportsdb.com" target="_blank" rel="noreferrer">TheSportsDB</a>
-        </span>
-      </div>
+    <footer className="footer d-flex flex-wrap justify-content-between gap-2">
+      <span>&copy; {new Date().getFullYear()} HandballHub · Веб програмирање</span>
+      <span>
+        <a href="/api/docs/" target="_blank" rel="noreferrer">REST API (Swagger)</a> · Податоци: <a href="https://www.thesportsdb.com" target="_blank" rel="noreferrer">TheSportsDB</a>
+      </span>
     </footer>
   );
 }
 
-/** Uniform page frame: navbar, content, footer */
+/** App shell: sidebar (desktop), top bar + off-canvas menu + bottom tabs (mobile), results ticker. */
 export default function Layout() {
+  const { isLoggedIn } = useAuth();
+  const location = useLocation();
+  const [menu, setMenu] = useState(false);
+  useEffect(() => setMenu(false), [location.pathname, location.search]);
+
+  const tabs = [
+    ['/', 'Почетна', 'bi-lightning-charge-fill', true],
+    ['/matches', 'Натпревари', 'bi-calendar2-week'],
+    ['/standings', 'Табела', 'bi-bar-chart-steps'],
+    ['/leaderboard', 'Прогнози', 'bi-trophy'],
+    ...(isLoggedIn ? [['/my-predictions', 'Мои', 'bi-bullseye']] : [['/login', 'Најава', 'bi-person-circle']]),
+  ];
+
   return (
-    <div className="d-flex flex-column min-vh-100">
-      <AppNavbar />
-      <main className="container py-4 flex-grow-1">
-        <Outlet />
-      </main>
-      <AppFooter />
+    <div className="app-shell">
+      <aside className="sidebar">
+        <Link to="/" className="brand"><Ball /> HANDBALL<span className="text-lime">HUB</span></Link>
+        <SideNav />
+        <UserBox />
+      </aside>
+
+      <div className="content">
+        <header className="topbar">
+          <Link to="/" className="brand"><Ball /> HANDBALL<span className="text-lime">HUB</span></Link>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setMenu(true)} aria-label="Мени"><i className="bi bi-list fs-5" /></button>
+        </header>
+        <Ticker />
+        <main className="content-inner mx-auto">
+          <Outlet />
+        </main>
+        <AppFooter />
+      </div>
+
+      <nav className="bottom-tabs" aria-label="Брзо мени">
+        {tabs.map(([to, label, icon, end]) => (
+          <NavLink key={to} to={to} end={end}><i className={`bi ${icon}`} />{label}</NavLink>
+        ))}
+      </nav>
+
+      <Offcanvas show={menu} onHide={() => setMenu(false)} placement="start" style={{ width: 280 }}>
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title as="div" className="brand p-0"><Ball /> HANDBALL<span className="text-lime">HUB</span></Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body className="d-flex flex-column p-2">
+          <SideNav onNavigate={() => setMenu(false)} />
+          <UserBox />
+        </Offcanvas.Body>
+      </Offcanvas>
     </div>
   );
 }

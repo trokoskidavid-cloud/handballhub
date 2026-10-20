@@ -65,7 +65,7 @@ export default function ExternalImportPage() {
 
   return (
     <>
-      <PageHeader title="Увоз од TheSportsDB" icon="bi-cloud-download"
+      <PageHeader eyebrow="Надворешен извор" title="TheSportsDB увоз"
         subtitle="Пребарај професионални ракометари во надворешниот извор и увези ги нивните податоци (биографија, фото, клуб)." />
       <form className="input-group mb-4" onSubmit={search} noValidate>
         <input className="form-control" value={term} onChange={(e) => setTerm(e.target.value)} placeholder="пр. Dika Mem, Mikkel Hansen..." aria-label="Име на играч" />

@@ -24,7 +24,7 @@ export function HistoryPage() {
 
   return (
     <>
-      <PageHeader title="Историја на активности" icon="bi-clock-history" subtitle={isAdmin ? 'Активности на сите корисници' : 'Твоите активности'} />
+      <PageHeader eyebrow="Профил" title="Историја"  subtitle={isAdmin ? 'Активности на сите корисници' : 'Твоите активности'} />
       <div className="d-flex flex-wrap gap-2 mb-3">
         <select className="form-select w-auto" value={query.action || ''} onChange={(e) => update('action', e.target.value)} aria-label="Акција">
           <option value="">Сите акции</option>
@@ -80,13 +80,13 @@ export function UsersPage() {
 
   return (
     <>
-      <PageHeader title="Корисници" icon="bi-person-gear" subtitle="Администрација на улоги" />
+      <PageHeader eyebrow="Администрација" title="Корисници" subtitle="Администрација на улоги" />
       {msg && <div className={`alert alert-${msg.type} alert-dismissible`}>{msg.text}<button type="button" className="btn-close" onClick={() => setMsg(null)} aria-label="Затвори" /></div>}
       <ErrorAlert error={error} onRetry={reload} />
       {loading ? <Loader /> : data && (
-        <div className="table-responsive">
-          <table className="table bg-white align-middle shadow-sm">
-            <thead className="table-light"><tr><th>Корисник</th><th className="d-none d-md-table-cell">Е-пошта</th><th>Улога</th><th>Прогнози</th><th>Поени</th><th className="d-none d-md-table-cell">Регистриран</th><th /></tr></thead>
+        <div className="panel table-responsive">
+          <table className="table align-middle">
+            <thead><tr><th>Корисник</th><th className="d-none d-md-table-cell">Е-пошта</th><th>Улога</th><th>Прогнози</th><th>Поени</th><th className="d-none d-md-table-cell">Регистриран</th><th /></tr></thead>
             <tbody>
               {data.map((u) => (
                 <tr key={u._id}>
@@ -134,7 +134,7 @@ export function DbPage() {
 
   return (
     <>
-      <PageHeader title="Управување со базата (/db)" icon="bi-database" subtitle="Страница за тестирање и враќање на почетна состојба" />
+      <PageHeader eyebrow="Администрација · /db" title="База на податоци" subtitle="Страница за тестирање и враќање на почетна состојба" />
       {result && (
         <div className={`alert alert-${result.type}`}>
           <strong>{result.text}</strong>

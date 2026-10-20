@@ -21,20 +21,20 @@ export default function StandingsPage() {
 
   return (
     <>
-      <PageHeader title="Табела" icon="bi-list-ol" subtitle="Победа = 2 поени, нерешено = 1 поен. Се пресметува автоматски од одиграните натпревари.">
+      <PageHeader eyebrow={competition} title="Табела" subtitle="Победа = 2 поени, нерешено = 1 поен. Се пресметува автоматски од одиграните натпревари.">
         <select className="form-select w-auto" value={competition} onChange={(e) => setParams({ competition: e.target.value })} aria-label="Натпреварување">
           {(competitions.data?.length ? competitions.data : [competition]).map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
-        <button type="button" className="btn btn-outline-success d-print-none" onClick={exportCsv}><i className="bi bi-filetype-csv me-1" />CSV</button>
-        <button type="button" className="btn btn-outline-secondary d-print-none" onClick={() => window.print()}><i className="bi bi-printer me-1" />Печати</button>
+        <button type="button" className="btn btn-ghost d-print-none" onClick={exportCsv}><i className="bi bi-filetype-csv me-1" />CSV</button>
+        <button type="button" className="btn btn-ghost d-print-none" onClick={() => window.print()}><i className="bi bi-printer me-1" />Печати</button>
       </PageHeader>
       <ErrorAlert error={exportError} />
       <ErrorAlert error={error} onRetry={reload} />
       {loading ? <Loader /> : !data ? null : data.length === 0 ? <EmptyState icon="bi-list-ol" text="Нема одиграни натпревари во ова натпреварување." /> : (
         <>
-          <div className="table-responsive mb-4">
-            <table className="table bg-white align-middle shadow-sm table-standings">
-              <thead className="table-light">
+          <div className="panel table-responsive mb-4">
+            <table className="table align-middle standings">
+              <thead>
                 <tr>
                   <th>#</th><th>Клуб</th><th title="одиграни">Н</th><th title="победи">П</th><th title="нерешени">Н</th><th title="порази">И</th>
                   <th className="d-none d-sm-table-cell" title="дадени:примени голови">Голови</th><th title="гол-разлика">+/-</th><th>Поени</th><th className="d-none d-md-table-cell">Форма</th>
@@ -42,25 +42,25 @@ export default function StandingsPage() {
               </thead>
               <tbody>
                 {data.map((r) => (
-                  <tr key={r.club._id} className={r.position === 1 ? 'table-warning' : ''}>
-                    <td className="fw-bold">{r.position}.</td>
-                    <td><span className="d-inline-flex align-items-center gap-2"><ClubLogo club={r.club} size={28} /><Link to={`/clubs/${r.club._id}`}>{r.club.name}</Link></span></td>
+                  <tr key={r.club._id} className={r.position === 1 ? 'lead' : r.position === data.length && data.length > 3 ? 'bottom' : ''}>
+                    <td className="pos-num ps-3">{r.position}</td>
+                    <td><span className="d-inline-flex align-items-center gap-2"><ClubLogo club={r.club} size={30} /><Link to={`/clubs/${r.club._id}`} className="text-reset fw-semibold">{r.club.name}</Link></span></td>
                     <td>{r.played}</td><td>{r.won}</td><td>{r.drawn}</td><td>{r.lost}</td>
                     <td className="d-none d-sm-table-cell">{r.goalsFor}:{r.goalsAgainst}</td>
                     <td>{signed(r.goalDiff)}</td>
-                    <td><span className="badge text-bg-dark fs-6">{r.points}</span></td>
+                    <td className="pts-big">{r.points}</td>
                     <td className="d-none d-md-table-cell"><FormDots form={r.form} /></td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            <p className="small text-muted">Н – натпревари, П – победи, Н – нерешени, И – изгубени. Форма: последните 5 натпревари.</p>
+            <p className="small text-muted px-3 py-2 mb-0">Н – натпревари, П – победи, Н – нерешени, И – изгубени. Форма: последните 5 натпревари. <span className="text-lime">▌</span> лидер</p>
           </div>
           <div className="card d-print-none">
             <div className="card-header">Дадени и примени голови</div>
             <div className="card-body">
               <BarChart labels={data.map((r) => r.club.name)} height={280}
-                datasets={[{ label: 'Дадени', data: data.map((r) => r.goalsFor), backgroundColor: COLORS.orange }, { label: 'Примени', data: data.map((r) => r.goalsAgainst), backgroundColor: COLORS.navy }]} />
+                datasets={[{ label: 'Дадени', data: data.map((r) => r.goalsFor), backgroundColor: COLORS.lime }, { label: 'Примени', data: data.map((r) => r.goalsAgainst), backgroundColor: COLORS.coral }]} />
             </div>
           </div>
         </>

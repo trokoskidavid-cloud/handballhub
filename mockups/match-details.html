@@ -1,32 +1,24 @@
 <!DOCTYPE html>
-<html lang="mk">
+<html lang="mk" data-bs-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Детали за натпревар · HandballHub</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <link href="assets/style.css" rel="stylesheet">
 </head>
-<body class="d-flex flex-column min-vh-100">
-<nav class="navbar navbar-expand-lg navbar-dark hh-navbar">
-  <div class="container">
-    <a class="navbar-brand fw-bold" href="index.html"><i class="bi bi-dribbble text-orange"></i> HandballHub</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-label="Мени"><span class="navbar-toggler-icon"></span></button>
-    <div class="collapse navbar-collapse" id="nav">
-      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="index.html">Почетна</a></li>
-<li class="nav-item"><a class="nav-link" href="matches.html">Натпревари</a></li>
-<li class="nav-item"><a class="nav-link" href="standings.html">Табела</a></li>
-<li class="nav-item"><a class="nav-link" href="leaderboard.html">Прогнози</a></li>
-<li class="nav-item"><a class="nav-link" href="players.html">Играчи</a></li>
-<li class="nav-item"><a class="nav-link" href="clubs.html">Клубови</a></li>
-<li class="nav-item"><a class="nav-link" href="search.html">Пребарување</a></li>
-<li class="nav-item"><a class="nav-link" href="dashboard.html">Статистика</a></li></ul>
-      <ul class="navbar-nav"><li class="nav-item"><a class="nav-link" href="my-predictions.html"><i class="bi bi-graph-up-arrow"></i> Мои прогнози</a></li><li class="nav-item"><a class="nav-link" href="history.html"><i class="bi bi-clock-history"></i> Историја</a></li><li class="nav-item"><a class="nav-link" href="login.html"><i class="bi bi-person-circle"></i> ana.p</a></li></ul>
-    </div>
-  </div>
-</nav>
-<main class="container py-4 flex-grow-1">
+<body>
+<aside class="sidebar">
+  <a class="brand" href="index.html"><img src="img/favicon.svg" class="brand-ball" alt=""> HANDBALL<span class="text-lime">HUB</span></a>
+  <nav class="side-nav"><div class="side-group">Мени</div><a class="side-link" href="index.html"><i class="bi bi-lightning-charge-fill"></i>Почетна</a><a class="side-link" href="matches.html"><i class="bi bi-calendar2-week"></i>Натпревари</a><a class="side-link" href="standings.html"><i class="bi bi-bar-chart-steps"></i>Табела</a><a class="side-link" href="leaderboard.html"><i class="bi bi-trophy"></i>Ранг-листа</a><a class="side-link" href="my-predictions.html"><i class="bi bi-bullseye"></i>Мои прогнози</a><a class="side-link" href="players.html"><i class="bi bi-person-badge"></i>Играчи</a><a class="side-link" href="clubs.html"><i class="bi bi-shield-shaded"></i>Клубови</a><a class="side-link" href="search.html"><i class="bi bi-search"></i>Пребарување</a><a class="side-link" href="dashboard.html"><i class="bi bi-graph-up"></i>Статистика</a><a class="side-link" href="external.html"><i class="bi bi-cloud-arrow-down"></i>TheSportsDB увоз</a><a class="side-link" href="history.html"><i class="bi bi-clock-history"></i>Историја</a><a class="side-link" href="users.html"><i class="bi bi-people"></i>Корисници</a></nav>
+  <div class="side-user d-flex align-items-center gap-2"><span class="avatar">AN</span><div><div class="fw-semibold">ana.p</div><small class="text-muted">навивач</small></div></div>
+</aside>
+<div class="content">
+<header class="topbar"><a class="brand" href="index.html">HANDBALL<span class="text-lime">HUB</span></a><a class="btn btn-ghost btn-sm" href="#"><i class="bi bi-list"></i></a></header>
+<div class="ticker"><div class="ticker-label">РЕЗУЛТАТИ</div><div class="ticker-track"><span class="ticker-item">RK Alkaloid <strong>27:31</strong> RK Vardar 1961</span><span class="ticker-item">RK Eurofarm Pelister <strong>32:26</strong> RK Ohrid</span><span class="ticker-item">RK Struga <strong>25:24</strong> RK Prilep</span><span class="ticker-item">FC Barcelona <strong>34:28</strong> RK Vardar 1961</span></div></div>
+<main class="content-inner mx-auto">
 
 <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="matches.html">Натпревари</a></li><li class="breadcrumb-item active">RK Vardar 1961 – RK Eurofarm Pelister</li></ol></nav>
 <div class="d-flex flex-wrap justify-content-between gap-2 mb-3"><h1 class="h3 mb-0">RK Vardar 1961 – RK Eurofarm Pelister</h1>
@@ -63,12 +55,10 @@
     <textarea class="form-control mb-2" rows="2" placeholder="Што мислиш за натпреварот?"></textarea><button class="btn btn-primary btn-sm">Објави</button>
   </div></div></div>
 </div>
-<div class="card mt-5 border-info mockup-desc"><div class="card-body small">
-<h2 class="h6 text-info"><i class="bi bi-info-circle"></i> Опис на екранот (маска – Дел 1)</h2>
-<ul class="mb-0"><li>Детален приказ на натпревар: клубови, датум, сала, резултат (по одигрување).</li><li>Игра со прогнози: најавен корисник внесува/менува/брише своја прогноза до почетокот на натпреварот.</li><li>Графикон на распределба на прогнозите (домаќин / нерешено / гостин) и просечна прогноза.</li><li>Дискусија помеѓу корисниците (коментари) – интеракција меѓу корисници со известување по е-пошта.</li><li>Администратор: внес на резултат, уредување и бришење (popup за потврда).</li></ul></div></div>
+<div class="panel mt-5 p-3 mockup-desc small"><div class="eyebrow mb-2"><i class="bi bi-info-circle"></i> Опис на екранот (маска – Дел 1)</div><ul class="mb-0"><li>Детален приказ на натпревар: клубови, датум, сала, резултат (по одигрување).</li><li>Игра со прогнози: најавен корисник внесува/менува/брише своја прогноза до почетокот на натпреварот.</li><li>Графикон на распределба на прогнозите (домаќин / нерешено / гостин) и просечна прогноза.</li><li>Дискусија помеѓу корисниците (коментари) – интеракција меѓу корисници со известување по е-пошта.</li><li>Администратор: внес на резултат, уредување и бришење (popup за потврда).</li></ul></div>
 </main>
-<footer class="hh-footer py-3 mt-auto"><div class="container small d-flex flex-wrap justify-content-between gap-2">
-<span>&copy; 2026 HandballHub · Веб програмирање</span><span>REST API документација · Податоци: TheSportsDB</span></div></footer>
+<footer class="footer">&copy; 2026 HandballHub · Веб програмирање · REST API (Swagger) · Податоци: TheSportsDB</footer>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

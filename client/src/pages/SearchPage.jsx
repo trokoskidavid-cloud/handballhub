@@ -58,7 +58,7 @@ export default function SearchPage() {
 
   return (
     <>
-      <PageHeader title="Напредно пребарување" icon="bi-search" subtitle="Пронајди играчи според повеќе критериуми" />
+      <PageHeader eyebrow="Скаут-филтер" title="Пребарување" subtitle="Пронајди играчи според повеќе критериуми" />
       <div className="card mb-4 shadow-sm">
         <div className="card-body">
           <form className="row g-3" onSubmit={submit} noValidate>

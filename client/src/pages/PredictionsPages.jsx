@@ -21,19 +21,31 @@ export function LeaderboardPage() {
 
   return (
     <>
-      <PageHeader title="Ранг-листа на прогнози" icon="bi-trophy" subtitle="Точен победник 2 поени · + точна гол-разлика 1 · + точен резултат 2 (најмногу 5)">
-        <button type="button" className="btn btn-outline-success" onClick={exportCsv}><i className="bi bi-filetype-csv me-1" />Извези CSV</button>
+      <PageHeader eyebrow="Игра со прогнози" title="Ранг-листа" subtitle="Точен победник 2 поени · + точна гол-разлика 1 · + точен резултат 2 (најмногу 5)">
+        <button type="button" className="btn btn-ghost" onClick={exportCsv}><i className="bi bi-filetype-csv me-1" />Извези CSV</button>
         {isLoggedIn && <Link to="/my-predictions" className="btn btn-primary"><i className="bi bi-person me-1" />Мои прогнози</Link>}
-        <Link to="/matches?status=scheduled" className="btn btn-orange"><i className="bi bi-plus-lg me-1" />Нова прогноза</Link>
+        <Link to="/matches?status=scheduled" className="btn btn-coral"><i className="bi bi-plus-lg me-1" />Нова прогноза</Link>
       </PageHeader>
       <ErrorAlert error={exportError} />
       <ErrorAlert error={error} onRetry={reload} />
       {loading ? <Loader /> : !data ? null : data.length === 0 ? <EmptyState icon="bi-trophy" text="Сè уште нема прогнози." /> : (
         <div className="row g-4">
+          <div className="col-12">
+            <div className="podium" style={{ maxWidth: 640, margin: '0 auto' }}>
+              {[data[1], data[0], data[2]].map((r, i) => r && (
+                <div key={r._id} className={`podium-step${i === 1 ? ' first' : ''}`}>
+                  <span className="avatar mb-2" style={i === 1 ? { width: 54, height: 54, fontSize: '1rem' } : undefined}>{r.username.slice(0, 2).toUpperCase()}</span>
+                  <div className="podium-rank">{r.points}</div>
+                  <div className="fw-semibold text-truncate">{r.username}</div>
+                  <div className="text-muted small">{['🥈 2. место', '🥇 1. место', '🥉 3. место'][i]}</div>
+                </div>
+              ))}
+            </div>
+          </div>
           <div className="col-lg-7">
-            <div className="table-responsive">
-              <table className="table bg-white align-middle shadow-sm">
-                <thead className="table-light">
+            <div className="panel table-responsive">
+              <table className="table align-middle">
+                <thead>
                   <tr><th>#</th><th>Навивач</th><th>Поени</th><th title="бодирани / вкупно прогнози">Прогнози</th><th title="точен резултат">Точни</th><th title="точен победник">Успешност</th></tr>
                 </thead>
                 <tbody>
@@ -41,7 +53,7 @@ export function LeaderboardPage() {
                     <tr key={r._id} className={user && r._id === user._id ? 'table-warning' : ''}>
                       <td className="fw-bold">{r.rank <= 3 ? ['🥇', '🥈', '🥉'][r.rank - 1] : `${r.rank}.`}</td>
                       <td>{r.username}<br /><small className="text-muted">{r.fullName}</small></td>
-                      <td><span className="badge text-bg-dark fs-6">{r.points}</span></td>
+                      <td className="pts-big">{r.points}</td>
                       <td>{r.scored} / {r.predictions}</td>
                       <td>{r.exact}</td>
                       <td>{r.accuracy != null ? `${r.accuracy}%` : '–'}</td>
@@ -55,7 +67,7 @@ export function LeaderboardPage() {
             <div className="card">
               <div className="card-header">Поени по навивач</div>
               <div className="card-body">
-                <BarChart labels={data.slice(0, 10).map((r) => r.username)} values={data.slice(0, 10).map((r) => r.points)} label="Поени" color={COLORS.orange} horizontal height={Math.max(180, data.slice(0, 10).length * 36)} />
+                <BarChart labels={data.slice(0, 10).map((r) => r.username)} values={data.slice(0, 10).map((r) => r.points)} label="Поени" color={COLORS.lime} horizontal height={Math.max(180, data.slice(0, 10).length * 36)} />
               </div>
             </div>
           </div>
@@ -85,8 +97,8 @@ export function MyPredictionsPage() {
 
   return (
     <>
-      <PageHeader title="Мои прогнози" icon="bi-graph-up-arrow" breadcrumbs={[['Ранг-листа', '/leaderboard'], ['Мои прогнози']]}>
-        <Link to="/matches?status=scheduled" className="btn btn-orange"><i className="bi bi-plus-lg me-1" />Нова прогноза</Link>
+      <PageHeader eyebrow="Мојот профил" title="Мои прогнози" breadcrumbs={[['Ранг-листа', '/leaderboard'], ['Мои прогнози']]}>
+        <Link to="/matches?status=scheduled" className="btn btn-primary"><i className="bi bi-plus-lg me-1" />Нова прогноза</Link>
       </PageHeader>
       <div className="row g-3 mb-4">
         <div className="col-6 col-md-3"><StatCard value={me ? `${me.rank}.` : '–'} label="Место на ранг-листа" icon="bi-trophy" /></div>
@@ -134,7 +146,7 @@ export function MyPredictionsPage() {
                 <div className="card-header">Поени на оваа страница</div>
                 <div className="card-body">
                   {split.some(Boolean)
-                    ? <DoughnutChart labels={['5 (точен резултат)', '3', '2', '0']} values={split} colors={[COLORS.green, COLORS.blue, COLORS.navy, COLORS.red]} height={240} />
+                    ? <DoughnutChart labels={['5 (точен резултат)', '3', '2', '0']} values={split} colors={[COLORS.lime, COLORS.blue, COLORS.violet, COLORS.coral]} height={240} />
                     : <EmptyState icon="bi-pie-chart" text="Нема бодирани прогнози." />}
                 </div>
               </div>

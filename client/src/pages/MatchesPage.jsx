@@ -87,8 +87,8 @@ export default function MatchesPage() {
 
   return (
     <>
-      <PageHeader title="Натпревари" icon="bi-calendar-event" subtitle="Распоред, резултати и прогнози">
-        {isAdmin && <button type="button" className="btn btn-primary" onClick={() => setAdding(true)}><i className="bi bi-plus-lg me-1" />Нов натпревар</button>}
+      <PageHeader eyebrow="Распоред и семафор" title="Натпревари" subtitle="Распоред, резултати и прогнози">
+        {isAdmin && <button type="button" className="btn btn-coral" onClick={() => setAdding(true)}><i className="bi bi-plus-lg me-1" />Нов натпревар</button>}
       </PageHeader>
 
       <div className="d-flex flex-wrap justify-content-between gap-2 mb-3">

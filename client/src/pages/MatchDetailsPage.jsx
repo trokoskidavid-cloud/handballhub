@@ -12,6 +12,7 @@ import FormField from '../components/FormField';
 import { MatchFormModal } from './MatchesPage';
 import { validate, predictionSchema, resultSchema } from '../utils/validators';
 import { formatDate, timeAgo, pointsLabel, percent } from '../pipes';
+import { clubColors } from '../utils/graphics';
 
 /** Number input with − / + buttons (used for goals). */
 function ScoreInput({ label, value, onChange, error, id }) {
@@ -88,7 +89,7 @@ function MyPrediction({ match, onChanged }) {
         </div>
         <FormField label="Белешка (не е задолжително)" name="note" value={form.note} onChange={change} error={errors.note} maxLength={200} placeholder="пр. Домаќинот е во одлична форма" help={`${form.note.length}/200`} />
         <div className="d-flex gap-2 mt-3">
-          <button type="submit" className="btn btn-orange" disabled={busy}>{busy && <span className="spinner-border spinner-border-sm me-2" />}Зачувај прогноза</button>
+          <button type="submit" className="btn btn-primary" disabled={busy}>{busy && <span className="spinner-border spinner-border-sm me-2" />}Зачувај прогноза</button>
           <button type="button" className="btn btn-outline-secondary" onClick={() => setForm(null)}>Откажи</button>
         </div>
       </form>
@@ -116,7 +117,7 @@ function MyPrediction({ match, onChanged }) {
           </div>
         </div>
       ) : match.isOpen ? (
-        <button type="button" className="btn btn-orange btn-lg w-100" onClick={start}><i className="bi bi-graph-up-arrow me-2" />Внеси прогноза</button>
+        <button type="button" className="btn btn-primary btn-lg w-100" onClick={start}><i className="bi bi-graph-up-arrow me-2" />Внеси прогноза</button>
       ) : (
         <p className="text-muted mb-0">{match.isFinished ? 'Немаше прогноза за овој натпревар.' : 'Натпреварот започна – прогнозите се затворени.'}</p>
       )}
@@ -242,6 +243,7 @@ export default function MatchDetailsPage() {
   const predictions = useAsync(() => api.getPredictions({ match: id, limit: 100, sort: 'points' }), [id]);
   const [modal, setModal] = useState(null); // 'result' | 'edit'
   const [confirm, setConfirm] = useState(null);
+  const [tab, setTab] = useState('predict'); // predict | stats | talk
 
   // on reload (after a prediction / result) keep showing the page instead of a blank loader
   if (match.loading && match.data?._id !== id) return <Loader />;
@@ -255,90 +257,98 @@ export default function MatchDetailsPage() {
 
   return (
     <>
-      <PageHeader title={`${m.homeClub?.name} – ${m.awayClub?.name}`} breadcrumbs={[['Натпревари', '/matches'], [`${m.homeClub?.name} – ${m.awayClub?.name}`]]}>
+      <PageHeader eyebrow="Натпревар" title={`${m.homeClub?.name} – ${m.awayClub?.name}`} breadcrumbs={[['Натпревари', '/matches'], [`${m.homeClub?.name} – ${m.awayClub?.name}`]]}>
         {isAdmin && (
           <>
-            <button type="button" className="btn btn-orange" onClick={() => setModal('result')}><i className="bi bi-clipboard-check me-1" />{m.isFinished ? 'Измени резултат' : 'Внеси резултат'}</button>
-            <button type="button" className="btn btn-outline-secondary" onClick={() => setModal('edit')}><i className="bi bi-pencil me-1" />Уреди</button>
+            <button type="button" className="btn btn-coral" onClick={() => setModal('result')}><i className="bi bi-clipboard-check me-1" />{m.isFinished ? 'Измени резултат' : 'Внеси резултат'}</button>
+            <button type="button" className="btn btn-ghost" onClick={() => setModal('edit')}><i className="bi bi-pencil me-1" />Уреди</button>
             <button type="button" className="btn btn-outline-danger" onClick={openDelete}><i className="bi bi-trash me-1" />Избриши</button>
           </>
         )}
       </PageHeader>
 
-      <div className="card shadow-sm mb-4">
-        <div className="card-body text-center">
-          <div className="small text-muted mb-2">
-            {m.competition}{m.round !== '' && ` · ${m.round}. коло`} · {formatDate(m.date, 'long')}{m.venue && ` · ${m.venue}`} <MatchStatusBadge status={m.status} />
+      <section className="match-hero mb-4" style={{ background: `linear-gradient(110deg, ${clubColors(m.homeClub?.name)[0]}26 0%, #121826 38%, #121826 62%, ${clubColors(m.awayClub?.name)[0]}26 100%)` }}>
+        <div className="d-flex justify-content-center flex-wrap gap-2 mb-3">
+          <span className="chip">{m.competition}{m.round !== '' && ` · ${m.round}. коло`}</span>
+          <MatchStatusBadge status={m.status} />
+        </div>
+        <div className="row align-items-center g-0">
+          <div className="col-4">
+            <ClubLogo club={m.homeClub} size={92} />
+            <div className="team-name"><Link to={`/clubs/${m.homeClubId}`} className="text-reset">{m.homeClub?.name}</Link></div>
+            <small className="text-muted">домаќин</small>
           </div>
-          <div className="row align-items-center">
-            <div className="col-4">
-              <ClubLogo club={m.homeClub} size={72} />
-              <div className="mt-2 fw-semibold"><Link to={`/clubs/${m.homeClubId}`}>{m.homeClub?.name}</Link></div>
-            </div>
-            <div className="col-4">
-              <div className="score">{m.isFinished ? m.score : formatDate(m.date, 'time')}</div>
-              {!m.isFinished && <div className="small text-muted">{timeAgo(m.date)}</div>}
-            </div>
-            <div className="col-4">
-              <ClubLogo club={m.awayClub} size={72} />
-              <div className="mt-2 fw-semibold"><Link to={`/clubs/${m.awayClubId}`}>{m.awayClub?.name}</Link></div>
-            </div>
+          <div className="col-4">
+            <div className="score">{m.isFinished ? `${m.homeScore} : ${m.awayScore}` : formatDate(m.date, 'time')}</div>
+            <div className="small text-muted mt-2">{m.isFinished ? 'Краен резултат' : `Почнува ${timeAgo(m.date)}`}</div>
+          </div>
+          <div className="col-4">
+            <ClubLogo club={m.awayClub} size={92} />
+            <div className="team-name"><Link to={`/clubs/${m.awayClubId}`} className="text-reset">{m.awayClub?.name}</Link></div>
+            <small className="text-muted">гостин</small>
           </div>
         </div>
+        <div className="small text-muted mt-3"><i className="bi bi-calendar3 me-1" />{formatDate(m.date, 'long')}{m.venue && <> · <i className="bi bi-geo-alt me-1" />{m.venue}</>}</div>
+      </section>
+
+      <div className="tabs-line" role="tablist">
+        {[['predict', 'Прогнози', 'bi-bullseye'], ['stats', 'Статистика', 'bi-table'], ['talk', `Дискусија (${m.commentCount})`, 'bi-chat-dots']].map(([k, l, i]) => (
+          <button key={k} type="button" role="tab" aria-selected={tab === k} className={tab === k ? 'active' : ''} onClick={() => setTab(k)}><i className={`bi ${i} me-1`} />{l}</button>
+        ))}
       </div>
 
-      <div className="row g-4 mb-4">
-        <div className="col-lg-6">
-          <div className="card h-100 border-warning">
-            <div className="card-header"><i className="bi bi-graph-up-arrow me-1" />Моја прогноза</div>
-            <div className="card-body"><MyPrediction match={m} onChanged={refresh} /></div>
+      {tab === 'predict' && (
+        <div className="row g-4">
+          <div className="col-lg-5">
+            <div className="panel p-3 border-warning h-100">
+              <div className="eyebrow mb-3"><i className="bi bi-bullseye me-1" />Моја прогноза</div>
+              <MyPrediction match={m} onChanged={refresh} />
+            </div>
           </div>
-        </div>
-        <div className="col-lg-6">
-          <div className="card h-100">
-            <div className="card-header">Што прогнозираат навивачите ({sum?.total || 0})</div>
-            <div className="card-body">
+          <div className="col-lg-7">
+            <div className="panel p-3 mb-4">
+              <div className="eyebrow mb-2">Што прогнозираат навивачите ({sum?.total || 0})</div>
               {sum?.total ? (
-                <>
-                  <DoughnutChart height={190} labels={[`Победа ${m.homeClub?.name}`, 'Нерешено', `Победа ${m.awayClub?.name}`]}
-                    values={[sum.home, sum.draw, sum.away]} colors={[COLORS.navy, COLORS.gray, COLORS.orange]} />
-                  <p className="text-center small mt-2 mb-0">Просечна прогноза: <strong>{sum.avgHome} : {sum.avgAway}</strong></p>
-                </>
+                <div className="row align-items-center">
+                  <div className="col-md-7">
+                    <DoughnutChart height={200} labels={[`Победа ${m.homeClub?.name}`, 'Нерешено', `Победа ${m.awayClub?.name}`]}
+                      values={[sum.home, sum.draw, sum.away]} colors={[clubColors(m.homeClub?.name)[0], COLORS.gray, clubColors(m.awayClub?.name)[0]]} />
+                  </div>
+                  <div className="col-md-5 text-center">
+                    <div className="small text-muted">Просечна прогноза</div>
+                    <div className="score" style={{ fontSize: '2.6rem' }}>{sum.avgHome}:{sum.avgAway}</div>
+                  </div>
+                </div>
               ) : <EmptyState icon="bi-pie-chart" text="Сè уште нема прогнози." />}
             </div>
+            <div className="panel">
+              <ul className="list-group list-group-flush rounded-4">
+                {predictions.loading ? <li className="list-group-item"><Loader /></li> : (predictions.data?.items || []).map((p) => (
+                  <li key={p._id} className="list-group-item d-flex align-items-center gap-2 bg-transparent">
+                    <Avatar name={p.user?.username || '?'} />
+                    <span className="me-auto min-w-0">
+                      <strong>{p.user?.username || 'избришан корисник'}</strong>
+                      {p.note && <><br /><small className="text-muted fst-italic">{p.note}</small></>}
+                    </span>
+                    <span className="score-sm">{p.scoreline}</span>
+                    {m.isFinished && <PointsBadge points={p.points} />}
+                  </li>
+                ))}
+                {predictions.data?.items.length === 0 && <li className="list-group-item text-muted bg-transparent">Нема прогнози.</li>}
+              </ul>
+            </div>
           </div>
-        </div>
-      </div>
-
-      {m.isFinished && (
-        <div className="row g-4 mb-4">
-          <div className="col-lg-6"><StatsTable title={m.homeClub?.name} rows={m.side('home')} /></div>
-          <div className="col-lg-6"><StatsTable title={m.awayClub?.name} rows={m.side('away')} /></div>
         </div>
       )}
 
-      <div className="row g-4">
-        <div className="col-lg-6">
-          <div className="card">
-            <div className="card-header">Прогнози</div>
-            <ul className="list-group list-group-flush">
-              {predictions.loading ? <li className="list-group-item"><Loader /></li> : (predictions.data?.items || []).map((p) => (
-                <li key={p._id} className="list-group-item d-flex align-items-center gap-2">
-                  <Avatar name={p.user?.username || '?'} />
-                  <span className="me-auto">
-                    <strong>{p.user?.username || 'избришан корисник'}</strong>
-                    {p.note && <><br /><small className="text-muted fst-italic">{p.note}</small></>}
-                  </span>
-                  <span className="score-sm">{p.scoreline}</span>
-                  {m.isFinished && <PointsBadge points={p.points} />}
-                </li>
-              ))}
-              {predictions.data?.items.length === 0 && <li className="list-group-item text-muted">Нема прогнози.</li>}
-            </ul>
-          </div>
+      {tab === 'stats' && (m.isFinished ? (
+        <div className="row g-4">
+          <div className="col-lg-6"><StatsTable title={m.homeClub?.name} rows={m.side('home')} /></div>
+          <div className="col-lg-6"><StatsTable title={m.awayClub?.name} rows={m.side('away')} /></div>
         </div>
-        <div className="col-lg-6"><CommentSection matchId={id} /></div>
-      </div>
+      ) : <EmptyState icon="bi-hourglass-split" text="Статистиката ќе се појави кога натпреварот ќе заврши." />)}
+
+      {tab === 'talk' && <div className="row"><div className="col-lg-8"><CommentSection matchId={id} /></div></div>}
 
       {modal === 'result' && <ResultModal match={m} onHide={() => setModal(null)} onSaved={() => { setModal(null); refresh(); }} />}
       {modal === 'edit' && <MatchFormModal match={m} onHide={() => setModal(null)} onSaved={() => { setModal(null); match.reload(); }} />}

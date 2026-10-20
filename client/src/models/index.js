@@ -3,6 +3,7 @@
  * Each class wraps the JSON returned by the REST API and adds derived properties.
  */
 import { age, formatDate } from '../pipes';
+import { jerseyUri, crestUri } from '../utils/graphics';
 
 const idOf = (v) => (v && typeof v === 'object' ? v._id : v || '');
 
@@ -35,9 +36,11 @@ export class Club {
     this.logoUrl = json.logoUrl || '';
     this.externalId = json.externalId || null;
     this.playerCount = json.playerCount ?? 0;
-    this.players = (json.players || []).map((p) => new Player(p));
+    // players of a club know their club (name -> crest / jersey colours)
+    this.players = (json.players || []).map((p) => new Player({ ...p, club: { _id: json._id, name: json.name, logoUrl: json.logoUrl } }));
     this.standing = json.standing || null; // place in the league table (club details)
   }
+  get crest() { return this.logoUrl || crestUri(this.name); }
   toPayload() {
     const { name, city, country, league, founded, arena, logoUrl } = this;
     return {
@@ -75,7 +78,8 @@ export class Player {
   get fullName() { return `${this.firstName} ${this.lastName}`.trim(); }
   get age() { return age(this.dateOfBirth); }
   get isGoalkeeper() { return this.position === 'GK'; }
-  get photo() { return this.photoUrl || `https://ui-avatars.com/api/?size=512&background=13315c&color=fff&name=${encodeURIComponent(this.fullName)}`; }
+  /** real photo, or a generated jersey in the club colours with the shirt number */
+  get photo() { return this.photoUrl || jerseyUri(this.jerseyNumber, this.club?.name || this.clubId, this.lastName); }
   toPayload() {
     const num = (v) => (v === '' || v == null ? undefined : Number(v));
     return {

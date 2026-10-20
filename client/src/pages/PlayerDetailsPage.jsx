@@ -33,7 +33,7 @@ export default function PlayerDetailsPage() {
 
   return (
     <>
-      <PageHeader title={p.fullName} breadcrumbs={[['Играчи', '/players'], [p.fullName]]}>
+      <PageHeader eyebrow={`${positionName(p.position)}${p.club ? ` · ${p.club.name}` : ""}`} title={p.fullName} breadcrumbs={[['Играчи', '/players'], [p.fullName]]}>
         {canModify(p.createdBy) && <Link to={`/players/${id}/edit`} className="btn btn-outline-secondary"><i className="bi bi-pencil me-1" />Уреди</Link>}
         {isAdmin && <button type="button" className="btn btn-outline-danger" onClick={openDelete}><i className="bi bi-trash me-1" />Избриши</button>}
       </PageHeader>
@@ -47,7 +47,7 @@ export default function PlayerDetailsPage() {
             <div className="card-body">
               <p className="mb-2 d-flex align-items-center gap-2">
                 {p.jerseyNumber !== '' && <span className="jersey">{p.jerseyNumber}</span>}
-                <span><span className="badge text-bg-dark me-1">{p.position}</span>{positionName(p.position)}</span>
+                <span><span className="chip chip-lime me-1">{p.position}</span>{positionName(p.position)}</span>
               </p>
               {p.club ? <Link to={`/clubs/${p.club._id}`}>{p.club.name}</Link> : <span className="text-muted">Без клуб</span>}
               {p.externalId && <span className="badge text-bg-info ms-2" title="Увезен од TheSportsDB"><i className="bi bi-cloud-check" /> TheSportsDB</span>}

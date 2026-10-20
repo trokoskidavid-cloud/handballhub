@@ -53,7 +53,7 @@ export function ClubsPage() {
 
   return (
     <>
-      <PageHeader title="Клубови" icon="bi-shield" subtitle={data ? `${data.length} клубови` : ' '}>
+      <PageHeader eyebrow="Лиги и клубови" title="Клубови" subtitle={data ? `${data.length} клубови` : ' '}>
         <input className="form-control" placeholder="Филтрирај..." value={filter} onChange={(e) => setFilter(e.target.value)} aria-label="Филтер" />
         {isAdmin && <button type="button" className="btn btn-primary text-nowrap" onClick={() => setEditing(new Club())}><i className="bi bi-plus-lg me-1" />Нов клуб</button>}
       </PageHeader>
@@ -94,7 +94,7 @@ export function ClubDetailsPage() {
 
   return (
     <>
-      <PageHeader title={c.name} breadcrumbs={[['Клубови', '/clubs'], [c.name]]}>
+      <PageHeader eyebrow={c.league || "Клуб"} title={c.name} breadcrumbs={[['Клубови', '/clubs'], [c.name]]}>
         {isAdmin && (
           <>
             <button type="button" className="btn btn-outline-secondary" onClick={() => setEditing(true)}><i className="bi bi-pencil me-1" />Уреди</button>

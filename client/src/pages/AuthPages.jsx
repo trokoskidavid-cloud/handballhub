@@ -41,29 +41,31 @@ export function LoginPage() {
   };
 
   return (
-    <div className="row justify-content-center">
-      <div className="col-md-6 col-lg-5">
-        <div className="card shadow-sm">
-          <div className="card-body p-4">
-            <h1 className="h3 mb-3 text-center"><i className="bi bi-box-arrow-in-right" /> Најава</h1>
-            {location.state?.from && <div className="alert alert-info small">Најавете се за да продолжите.</div>}
-            {f.serverError && <div className="alert alert-danger">{f.serverError}</div>}
-            <form onSubmit={submit} noValidate className="row g-3">
-              <FormField label="Е-пошта" name="email" type="email" value={f.values.email} onChange={f.onChange} error={f.errors.email} autoComplete="email" required />
-              <FormField label="Лозинка" name="password" type="password" value={f.values.password} onChange={f.onChange} error={f.errors.password} autoComplete="current-password" required />
-              <div className="col-12">
-                <button type="submit" className="btn btn-primary w-100" disabled={f.busy}>
-                  {f.busy && <span className="spinner-border spinner-border-sm me-2" />}Најави се
-                </button>
-              </div>
-            </form>
-            <p className="text-center mt-3 mb-0">Немаш профил? <Link to="/register">Регистрирај се</Link></p>
-            <details className="small text-muted mt-3">
-              <summary>Тест сметки</summary>
-              admin@handballhub.mk / Admin1234 (администратор)<br />ana@handballhub.mk / Navivac123 (навивач)
-            </details>
+    <div className="auth-wrap">
+      <div className="auth-art">
+        <div className="eyebrow">HandballHub</div>
+        <h2 className="text-uppercase text-white mb-1">Добредојде назад</h2>
+        <p className="text-muted mb-0">Најави се и внеси ги прогнозите пред почетокот на колото.</p>
+      </div>
+      <div className="auth-form">
+        <div className="eyebrow">Најава</div>
+        <h1 className="h2 text-uppercase mb-4">Влези во арената</h1>
+        {location.state?.from && <div className="alert alert-info small">Најавете се за да продолжите.</div>}
+        {f.serverError && <div className="alert alert-danger">{f.serverError}</div>}
+        <form onSubmit={submit} noValidate className="row g-3">
+          <FormField label="Е-пошта" name="email" type="email" value={f.values.email} onChange={f.onChange} error={f.errors.email} autoComplete="email" required />
+          <FormField label="Лозинка" name="password" type="password" value={f.values.password} onChange={f.onChange} error={f.errors.password} autoComplete="current-password" required />
+          <div className="col-12">
+            <button type="submit" className="btn btn-primary btn-lg w-100" disabled={f.busy}>
+              {f.busy && <span className="spinner-border spinner-border-sm me-2" />}Најави се
+            </button>
           </div>
-        </div>
+        </form>
+        <p className="text-center mt-3 mb-0 text-muted">Немаш профил? <Link to="/register">Регистрирај се</Link></p>
+        <details className="small text-muted mt-3">
+          <summary>Тест сметки</summary>
+          admin@handballhub.mk / Admin1234 (администратор)<br />ana@handballhub.mk / Navivac123 (навивач)
+        </details>
       </div>
     </div>
   );
@@ -94,11 +96,15 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="row justify-content-center">
-      <div className="col-md-9 col-lg-7">
-        <div className="card shadow-sm">
-          <div className="card-body p-4">
-            <h1 className="h3 mb-3"><i className="bi bi-person-plus" /> Регистрација на навивач</h1>
+    <div className="auth-wrap">
+      <div className="auth-art">
+        <div className="eyebrow">Бесплатно</div>
+        <h2 className="text-uppercase text-white mb-1">Стани дел од трибината</h2>
+        <p className="text-muted mb-0">Прогнози, ранг-листа, дискусии и известувања по е-пошта.</p>
+      </div>
+      <div className="auth-form">
+        <div className="eyebrow">Регистрација</div>
+        <h1 className="h2 text-uppercase mb-4">Нов навивач</h1>
             {f.serverError && <div className="alert alert-danger">{f.serverError}</div>}
             <form onSubmit={submit} noValidate className="row g-3">
               <FormField className="col-md-6" label="Корисничко име" name="username" value={f.values.username} onChange={f.onChange} error={f.errors.username} help="3–20 знаци: букви, бројки, точка и _" required />
@@ -114,14 +120,12 @@ export function RegisterPage() {
                 </div>
               </div>
               <div className="col-12">
-                <button type="submit" className="btn btn-orange w-100" disabled={f.busy}>
+                <button type="submit" className="btn btn-primary btn-lg w-100" disabled={f.busy}>
                   {f.busy && <span className="spinner-border spinner-border-sm me-2" />}Креирај профил
                 </button>
               </div>
             </form>
-            <p className="text-center mt-3 mb-0">Веќе имаш профил? <Link to="/login">Најави се</Link></p>
-          </div>
-        </div>
+            <p className="text-center mt-3 mb-0 text-muted">Веќе имаш профил? <Link to="/login">Најави се</Link></p>
       </div>
     </div>
   );

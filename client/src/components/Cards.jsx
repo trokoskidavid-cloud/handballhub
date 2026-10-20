@@ -1,61 +1,61 @@
 /** Data-driven cards reused on several pages (lists, search, home, club details...). */
 import { Link } from 'react-router-dom';
-import { ClubLogo, MatchStatusBadge } from './common';
-import { formatDate, positionName, timeAgo } from '../pipes';
+import { ClubLogo } from './common';
+import { formatDate, positionName, timeAgo, percent } from '../pipes';
 
+/** Player "trading card": jersey/photo, position, name and season numbers. */
 export function PlayerCard({ player, showClub = true }) {
+  const p = player;
   return (
-    <div className="card player-card h-100">
-      <div className="card-body d-flex gap-3 align-items-center">
-        <img src={player.photo} alt={player.fullName} className="player-thumb rounded" loading="lazy" />
-        <div className="flex-grow-1 min-w-0">
-          <Link to={`/players/${player._id}`} className="fw-bold stretched-link text-decoration-none">{player.fullName}</Link>
-          <div className="small text-muted text-truncate">
-            <span title={positionName(player.position)}>{positionName(player.position)}</span>
-            {showClub && player.club && ` · ${player.club.name}`} · {player.age} год.
-          </div>
-          <div className="small">
-            {player.isGoalkeeper
-              ? <span title="одбрани удари"><i className="bi bi-shield-check text-primary" /> {player.saves} одбрани</span>
-              : <span title="голови"><i className="bi bi-bullseye text-orange" /> {player.goals} голови</span>}
-            <span className="text-muted"> · {player.appearances} нат.</span>
-          </div>
+    <div className="pcard">
+      <img src={p.photo} alt={p.fullName} className="pcard-img" loading="lazy" />
+      <span className="pcard-pos chip chip-lime" title={positionName(p.position)}>{p.position}</span>
+      <div className="pcard-body">
+        <div className="pcard-name text-truncate">
+          <Link to={`/players/${p._id}`} className="stretched-link">{p.firstName} <span className="text-lime">{p.lastName}</span></Link>
         </div>
-        {player.jerseyNumber !== '' && <span className="jersey" title="Број на дрес">{player.jerseyNumber}</span>}
+        <div className="small text-muted text-truncate">
+          {positionName(p.position)}{showClub && p.club && ` · ${p.club.name}`}{p.age != null && ` · ${p.age} год.`}
+        </div>
+        <div className="pcard-stats">
+          <div><b>{p.appearances}</b><small>нат.</small></div>
+          {p.isGoalkeeper
+            ? <div><b>{p.saves}</b><small>одбрани</small></div>
+            : <div><b>{p.goals}</b><small>голови</small></div>}
+          <div><b>{p.isGoalkeeper ? (p.appearances ? Math.round(p.saves / p.appearances) : '–') : percent(p.goals, p.shots)}</b><small>{p.isGoalkeeper ? 'по нат.' : 'шут'}</small></div>
+        </div>
       </div>
     </div>
   );
 }
 
-/** One match: clubs, result or kick-off time. */
+/** One match as a small scoreboard: two rows (home / away) with crests and goals. */
 export function MatchCard({ match, children }) {
   const m = match;
-  const bold = (side) => (m.winner === side ? 'fw-bold' : '');
+  const row = (club, score, side) => (
+    <div className={`sb-row${m.winner === side ? ' win' : ''}`}>
+      <ClubLogo club={club} size={28} />
+      <span className="name">{club?.name || '?'}</span>
+      <span className="pts">{m.isFinished ? score : '–'}</span>
+    </div>
+  );
   return (
-    <div className="card match-card h-100">
-      <div className="card-body">
-        <div className="d-flex justify-content-between small text-muted mb-2">
-          <span>{m.competition}{m.round !== '' && ` · ${m.round}. коло`}</span>
-          <MatchStatusBadge status={m.status} />
-        </div>
-        <div className="d-flex align-items-center gap-2">
-          <div className={`flex-grow-1 text-end min-w-0 text-truncate ${bold('home')}`}>{m.homeClub?.name}</div>
-          <ClubLogo club={m.homeClub} size={32} />
-          <Link to={`/matches/${m._id}`} className="stretched-link text-decoration-none text-reset score-sm px-1">
-            {m.isFinished ? m.score : formatDate(m.date, 'time')}
-          </Link>
-          <ClubLogo club={m.awayClub} size={32} />
-          <div className={`flex-grow-1 min-w-0 text-truncate ${bold('away')}`}>{m.awayClub?.name}</div>
-        </div>
-        <div className="d-flex justify-content-between small text-muted mt-2">
-          <span><i className="bi bi-calendar-event me-1" />{m.isFinished ? formatDate(m.date) : `${formatDate(m.date, 'match')} (${timeAgo(m.date)})`}</span>
-          <span>
-            <i className="bi bi-graph-up-arrow me-1" title="прогнози" />{m.predictionCount}
-            <i className="bi bi-chat ms-2 me-1" title="коментари" />{m.commentCount}
-          </span>
-        </div>
-        {children}
+    <div className="scoreboard">
+      <div className="meta">
+        <span className="text-truncate">{m.competition}{m.round !== '' && ` · ${m.round}. коло`}</span>
+        {m.isFinished ? <span>Крај</span> : <span className="text-lime"><span className="live-dot me-1" style={{ background: '#d4ff3f' }} />{timeAgo(m.date)}</span>}
       </div>
+      {row(m.homeClub, m.homeScore, 'home')}
+      {row(m.awayClub, m.awayScore, 'away')}
+      <div className="foot">
+        <span><i className="bi bi-calendar3 me-1" />{m.isFinished ? formatDate(m.date) : formatDate(m.date, 'match')}</span>
+        <span>
+          <i className="bi bi-bullseye me-1" title="прогнози" />{m.predictionCount}
+          <i className="bi bi-chat-dots ms-2 me-1" title="коментари" />{m.commentCount}
+        </span>
+      </div>
+      <Link to={`/matches/${m._id}`} className="stretched-link" aria-label={`${m.homeClub?.name} – ${m.awayClub?.name}`} />
+      {children}
     </div>
   );
 }

@@ -20,7 +20,7 @@ export default function DashboardPage() {
 
   return (
     <>
-      <PageHeader title="Статистика" icon="bi-bar-chart" subtitle="Агрегирани податоци од натпреварите и прогнозите" />
+      <PageHeader eyebrow="Бројки и графикони" title="Статистика" subtitle="Агрегирани податоци од натпреварите и прогнозите" />
       <div className="row g-3 mb-4">
         {[['played', 'Одиграни'], ['scheduled', 'Закажани'], ['players', 'Играчи'], ['clubs', 'Клубови'], ['predictions', 'Прогнози'], ['users', 'Корисници']].map(([k, l]) => (
           <div className="col-6 col-md-4 col-xl-2" key={k}><StatCard value={counts[k]} label={l} /></div>
